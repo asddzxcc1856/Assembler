@@ -360,7 +360,7 @@ void pass1()
 	// ----------------------------------------
 	// write a last line to intermediate file
 	// ----------------------------------------
-    fprintf(intermediate, ("\t" + lineStr + "\n").c_str());
+    fprintf(intermediate, ("\t" + lineStr).c_str());
 	// ----------------------------------------
 	// store file length from (LOCCTR - start_address) for pass2
 	// ----------------------------------------
@@ -820,7 +820,7 @@ void pass2()
 	// ----------------------------------------
 	while(start_address.length() < 6)
 		start_address = "0" + start_address;
-    fprintf(object_file, ("E" + start_address + "\n").c_str());
+    fprintf(object_file, ("E" + start_address).c_str());
 	// ----------------------------------------
 	// close intermediate file and close object_file file
 	// ----------------------------------------
