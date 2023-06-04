@@ -1,5 +1,4 @@
-#include <iostream>
-#include "pass1_2.h"
+#include "pass1_2.cpp"
 
 int main ()
 {
