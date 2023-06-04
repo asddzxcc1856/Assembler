@@ -1,6 +1,6 @@
 # assmebly.cpp 中使用四個函式庫:
-<iostream>
-"pass1_2.h"
+iostream
+pass1_2.h
 
 # pass1_2.h 中使用四個函式庫:
 iostream
