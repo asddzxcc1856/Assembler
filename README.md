@@ -1,13 +1,18 @@
 # assmebly.cpp 中使用四個函式庫:
-- pass1_2.h
+- pass1_2.cpp
 
-# pass1_2.h 中使用四個函式庫:
+# pass1_2.cpp 中使用四個函式庫:
 - iostream
 - cstring
 - algorithm 
+- pass1_2.h
+- function.cpp
+- HashTable.cpp
+
+# function.cpp 中使用四個函式庫:
 - function.h
 
-# function.h 中使用四個函式庫:
+# HashTable.cpp 中使用四個函式庫:
 - HashTable.h
 
 # 程式流程:
