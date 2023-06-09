@@ -82,21 +82,36 @@ void pass1()
 	// ----------------------------------------
 	// get first line
 	// ----------------------------------------
-	fgets(line, sizeof(line), input);
-	// ----------------------------------------
-	// Remove the newline character from the line, if present
-	// ----------------------------------------
-    line[strcspn(line, "\n")] = '\0';
-	// ----------------------------------------
-	// string : lineStr
-    // store the line in a string
-    // ----------------------------------------
-    string lineStr(line);
+	int i;
+	bool isComment = true;
+	string lineStr;
+	while(isComment)
+	{
+		fgets(line, sizeof(line), input);
+		// ----------------------------------------
+		// Remove the newline character from the line, if present
+		// ----------------------------------------
+	    line[strcspn(line, "\n")] = '\0';
+		// ----------------------------------------
+		// string : lineStr
+	    // store the line in a string
+	    // ----------------------------------------
+	    string lineStr2(line);
+	    lineStr = lineStr2;
+		isComment = false;
+		for(i = 0 ; i < lineStr.length() ; i++)
+		{
+			if(lineStr[i] == '.')
+			{
+				isComment = true;
+				break;
+			}
+		}
+	}
     // ----------------------------------------
     // get mnemonic_operation_code
     // ----------------------------------------
 	mnemonic_operation_code = "";
-	int i;
 	// ----------------------------------------
 	// check if exist a tab then no any lable 
 	// ----------------------------------------
@@ -111,7 +126,7 @@ void pass1()
 			// ----------------------------------------
 			// stop when encounter \t
 			// ----------------------------------------
-			if(lineStr[i] == '\t')
+			if(lineStr[i] == '\t' || lineStr[i] == ' ')
 				break;
 			else
 				mnemonic_operation_code+= lineStr[i];
@@ -128,7 +143,7 @@ void pass1()
 			// ----------------------------------------
 			// stop when encounter \t
 			// ----------------------------------------
-			if(lineStr[i] == '\t')
+			if(lineStr[i] == '\t' || lineStr[i] == ' ')
 				break;
 			else
 				lables+= lineStr[i];
@@ -136,7 +151,8 @@ void pass1()
 		// ----------------------------------------
 		//  skip \t
 		// ----------------------------------------
-		i++;
+		while(lineStr[i] == '\t' || lineStr[i] == ' ')
+			i++;
 		// ----------------------------------------
 		// get mnemonic_operation_code
 		// ----------------------------------------
@@ -146,7 +162,7 @@ void pass1()
 			// ----------------------------------------
 			// stop when encounter \t
 			// ----------------------------------------
-			if(lineStr[i] == '\t')
+			if(lineStr[i] == '\t' || lineStr[i] == ' ')
 				break;
 			else
 				mnemonic_operation_code += lineStr[i];
@@ -154,7 +170,8 @@ void pass1()
 		// ----------------------------------------
 		//  skip \t
 		// ----------------------------------------
-		i++;
+		while(lineStr[i] == '\t' || lineStr[i] == ' ')
+			i++;
 	}
 	// ----------------------------------------
 	// check if mnemonic_operation_code is "START"
@@ -203,228 +220,257 @@ void pass1()
 		// ----------------------------------------
 		lineStr;
 		lineStr.assign(line);
-		if(lineStr[0] == '\t')
+		bool isComment = false;
+		for(i = 0 ; i < lineStr.length() ; i++)
 		{
-			// ----------------------------------------
-			// store lables to "" because of no lables in a lineStr
-			// ----------------------------------------
-			lables = "";
-			// ----------------------------------------
-			// get mnemonic_operation_code
-			// ----------------------------------------
-			mnemonic_operation_code = "";
-			for(i = 1 ; i < lineStr.length() ; i++)
+			if(lineStr[i] == '.')
 			{
-				// ----------------------------------------
-				// stop when encounter \t
-				// ----------------------------------------
-				if(lineStr[i] == '\t')
-					break;
-				else
-					mnemonic_operation_code+= lineStr[i];
+				isComment = true;
+				break;
 			}
-			// ----------------------------------------
-			//  skip \t
-			// ----------------------------------------
-			i++;
+		}
+		if(isComment)
+		{
+			fprintf(intermediate,"%s\n", lineStr.c_str());
 		}
 		else
 		{
-			// ----------------------------------------
-			// get lables
-			// ----------------------------------------
-			lables = "";
-			for(i = 0 ; i < lineStr.length() ; i++)
+			if(lineStr[0] == '\t')
 			{
 				// ----------------------------------------
-				// stop when encounter \t
+				// store lables to "" because of no lables in a lineStr
 				// ----------------------------------------
-				if(lineStr[i] == '\t')
-					break;
-				else
-					lables+= lineStr[i];
+				lables = "";
+				// ----------------------------------------
+				// get mnemonic_operation_code
+				// ----------------------------------------
+				mnemonic_operation_code = "";
+				for(i = 1 ; i < lineStr.length() ; i++)
+				{
+					// ----------------------------------------
+					// stop when encounter \t
+					// ----------------------------------------
+					if(lineStr[i] == '\t' || lineStr[i] == ' ')
+						break;
+					else
+						mnemonic_operation_code+= lineStr[i];
+				}
+				// ----------------------------------------
+				//  skip \t
+				// ----------------------------------------
+				while(lineStr[i] == '\t' || lineStr[i] == ' ')
+					i++;
+			}
+			else
+			{
+				// ----------------------------------------
+				// get lables
+				// ----------------------------------------
+				lables = "";
+				for(i = 0 ; i < lineStr.length() ; i++)
+				{
+					// ----------------------------------------
+					// stop when encounter \t
+					// ----------------------------------------
+					if(lineStr[i] == '\t' || lineStr[i] == ' ')
+						break;
+					else
+						lables+= lineStr[i];
+				}
+				// ----------------------------------------
+				//  skip \t
+				// ----------------------------------------
+				while(lineStr[i] == '\t' || lineStr[i] == ' ')
+					i++;
+				// ----------------------------------------
+				// get mnemonic_operation_code
+				// ----------------------------------------
+				mnemonic_operation_code = "";
+				for(; i < lineStr.length() ; i++)
+				{
+					// ----------------------------------------
+					// stop when encounter \t
+					// ----------------------------------------
+					if(lineStr[i] == '\t' || lineStr[i] == ' ')
+						break;
+					else
+						mnemonic_operation_code+= lineStr[i];
+				}
+				// ----------------------------------------
+				//  skip \t
+				// ----------------------------------------
+				while(lineStr[i] == '\t' || lineStr[i] == ' ')
+					i++;
 			}
 			// ----------------------------------------
-			//  skip \t
+			// check if mnemonic_operation_code is "END"
 			// ----------------------------------------
-			i++;
+			if(mnemonic_operation_code == "END")
+			{
+				break;
+			}
 			// ----------------------------------------
-			// get mnemonic_operation_code
+			// get symbolic_operands1
 			// ----------------------------------------
-			mnemonic_operation_code = "";
+			symbolic_operands1 = "";
 			for(; i < lineStr.length() ; i++)
 			{
+				if(lineStr[i] == '\t' || lineStr[i] == ' ')
+				{
+					break;	
+				}
 				// ----------------------------------------
-				// stop when encounter \t
+				// stop when encounter ','
 				// ----------------------------------------
-				if(lineStr[i] == '\t')
+				if(lineStr[i] == ',')
 					break;
 				else
-					mnemonic_operation_code+= lineStr[i];
+				symbolic_operands1 += lineStr[i];
 			}
 			// ----------------------------------------
 			//  skip \t
 			// ----------------------------------------
-			i++;
-		}
-		// ----------------------------------------
-		// check if mnemonic_operation_code is "END"
-		// ----------------------------------------
-		if(mnemonic_operation_code == "END")
-		{
-			break;
-		}
-		// ----------------------------------------
-		// get symbolic_operands1
-		// ----------------------------------------
-		symbolic_operands1 = "";
-		for(; i < lineStr.length() ; i++)
-		{
+			while(lineStr[i] == '\t' || lineStr[i] == ' ')
+				i++;
 			// ----------------------------------------
-			// stop when encounter ','
+			// get symbolic_operands2
 			// ----------------------------------------
-			if(lineStr[i] == ',')
-				break;
-			else
-			symbolic_operands1 += lineStr[i];
-		}
-		// ----------------------------------------
-		//  skip \t
-		// ----------------------------------------
-		i++;
-		// ----------------------------------------
-		// get symbolic_operands2
-		// ----------------------------------------
-		symbolic_operands2 = "";
-		for(; i < lineStr.length() ; i++)
-		{
-			symbolic_operands2 += lineStr[i];
-		}
-		// ----------------------------------------
-		// chectk if mnemonic_operation_code is "BASE"
-		// ----------------------------------------
-		if(mnemonic_operation_code == "BASE")
-		{
-			fprintf(intermediate,"\t%s\n", lineStr.c_str());
-			continue;
-		}
-		// ----------------------------------------
-		// chectk if lables is exist in a line
-		// ----------------------------------------
-		if(lables != "")
-		{
-			// ----------------------------------------
-			// get address of symbolic_operands 
-			// check if SYMTAB have lables
-			// if True then store "error" to lables
-			// if False then insert into SYMTAB
-			// ----------------------------------------
-			string address;
-			if(SYMTAB.search(lables,address))
+			symbolic_operands2 = "";
+			for(; i < lineStr.length() ; i++)
 			{
-				lables = "error";
-			}
-			else
-			{
-				SYMTAB.insert(lables,LOCCTR);
-				printf("%04X %s\n",hexStringToInteger(LOCCTR),lables.c_str());
-			}
-		}
-		string opcode;
-		// ----------------------------------------
-		// check whether is format4 or not
-		// ----------------------------------------
-		if(mnemonic_operation_code[0] == '+')
-		{
-			mnemonic_operation_code = mnemonic_operation_code.substr(1);
-			fprintf(intermediate,"%04X\t%s\n", hexStringToInteger(LOCCTR),lineStr.c_str());
-			if(OPTAB.search(mnemonic_operation_code,opcode))
-			{
-				LOCCTR = stringAddition(LOCCTR,"4");
-			}
-		}
-		else
-		{
-			fprintf(intermediate,"%04X\t%s\n", hexStringToInteger(LOCCTR),lineStr.c_str());
-			// ----------------------------------------
-			// check whether is format1 or not
-			// ----------------------------------------
-			if(mnemonic_operation_code == "FIX" || mnemonic_operation_code == "FLOAT" || mnemonic_operation_code == "HIO" || mnemonic_operation_code == "NORM" || mnemonic_operation_code == "SIO" || mnemonic_operation_code == "TIO")
-			{				LOCCTR = stringAddition(LOCCTR,"1");
-			}
-			// ----------------------------------------
-			// check whether is format2 or not
-			// ----------------------------------------
-			else if(mnemonic_operation_code == "ADDR" || mnemonic_operation_code == "CLEAR" || mnemonic_operation_code == "COMPR" || mnemonic_operation_code == "DIVR" || mnemonic_operation_code == "MULR" || mnemonic_operation_code == "RMO" || mnemonic_operation_code == "SHIFTL" || mnemonic_operation_code == "SHIFTR" || mnemonic_operation_code == "SUBR" || mnemonic_operation_code == "TIXR")
-			{
-				if(mnemonic_operation_code == "ADDR" || mnemonic_operation_code == "COMPR" || mnemonic_operation_code == "DIVR" || mnemonic_operation_code == "MULR" || mnemonic_operation_code == "RMO" || mnemonic_operation_code == "SHIFTL" || mnemonic_operation_code == "SHIFTR" || mnemonic_operation_code == "SUBR")
+				if(lineStr[i] == '\t' || lineStr[i] == ' ')
 				{
-					LOCCTR = stringAddition(LOCCTR,"2");
+					break;	
+				}
+				symbolic_operands2 += lineStr[i];
+			}
+			// ----------------------------------------
+			// chectk if mnemonic_operation_code is "BASE"
+			// ----------------------------------------
+			if(mnemonic_operation_code == "BASE")
+			{
+				fprintf(intermediate,"\t%s\n", lineStr.c_str());
+				continue;
+			}
+			// ----------------------------------------
+			// chectk if lables is exist in a line
+			// ----------------------------------------
+			if(lables != "")
+			{
+				// ----------------------------------------
+				// get address of symbolic_operands 
+				// check if SYMTAB have lables
+				// if True then store "error" to lables
+				// if False then insert into SYMTAB
+				// ----------------------------------------
+				string address;
+				if(SYMTAB.search(lables,address))
+				{
+					lables = "error";
 				}
 				else
 				{
-					LOCCTR = stringAddition(LOCCTR,"2");
-				}		
+					SYMTAB.insert(lables,LOCCTR);
+					printf("%04X %s\n",hexStringToInteger(LOCCTR),lables.c_str());
+				}
 			}
+			string opcode;
 			// ----------------------------------------
-			// is format3
+			// check whether is format4 or not
 			// ----------------------------------------
-			// ----------------------------------------
-			// check if mnemonic_operation_code is in OPTAB
-			// ----------------------------------------
-			else if(OPTAB.search(mnemonic_operation_code,opcode))
+			if(mnemonic_operation_code[0] == '+')
 			{
-				LOCCTR = stringAddition(LOCCTR,"3");
-			}
-			// ----------------------------------------
-			// check if mnemonic_operation_code is "WORD"
-			// ----------------------------------------
-			else if (mnemonic_operation_code == "WORD")
-			{
-				LOCCTR = stringAddition(LOCCTR,"3");
-			}
-			// ----------------------------------------
-			// check if mnemonic_operation_code is "RESW"
-			// ----------------------------------------
-			else if (mnemonic_operation_code == "RESW")
-			{
-				LOCCTR = stringAddition(LOCCTR,intToString(3 * hexStringToInteger(symbolic_operands1)));	
-			}
-			// ----------------------------------------
-			// check if mnemonic_operation_code is "RESB"
-			// ----------------------------------------
-			else if (mnemonic_operation_code == "RESB")
-			{
-				LOCCTR = stringAddition(LOCCTR,decimalToHexString(symbolic_operands1));		
-			}
-			// ----------------------------------------
-			// check if mnemonic_operation_code is "BYTE"
-			// ----------------------------------------
-			else if (mnemonic_operation_code == "BYTE")
-			{
-				// ----------------------------------------
-				// check if symbolic_operands is like C'EOF'
-				// ----------------------------------------
-				if(symbolic_operands1[0] == 'C' && symbolic_operands1[1] == '\'')
+				mnemonic_operation_code = mnemonic_operation_code.substr(1);
+				fprintf(intermediate,"%04X\t%s\n", hexStringToInteger(LOCCTR),lineStr.c_str());
+				if(OPTAB.search(mnemonic_operation_code,opcode))
 				{
-					symbolic_operands1= removeQuotes(symbolic_operands1);
-					LOCCTR = stringAddition(LOCCTR,intToString(symbolic_operands1.length()));	
+					LOCCTR = stringAddition(LOCCTR,"4");
+				}
+			}
+			else
+			{
+				fprintf(intermediate,"%04X\t%s\n", hexStringToInteger(LOCCTR),lineStr.c_str());
+				// ----------------------------------------
+				// check whether is format1 or not
+				// ----------------------------------------
+				if(mnemonic_operation_code == "FIX" || mnemonic_operation_code == "FLOAT" || mnemonic_operation_code == "HIO" || mnemonic_operation_code == "NORM" || mnemonic_operation_code == "SIO" || mnemonic_operation_code == "TIO")
+				{				LOCCTR = stringAddition(LOCCTR,"1");
 				}
 				// ----------------------------------------
-				// check if symbolic_operands is like X'1A'
+				// check whether is format2 or not
 				// ----------------------------------------
-				else if (symbolic_operands1[0] == 'X' && symbolic_operands1[1] == '\'')
+				else if(mnemonic_operation_code == "ADDR" || mnemonic_operation_code == "CLEAR" || mnemonic_operation_code == "COMPR" || mnemonic_operation_code == "DIVR" || mnemonic_operation_code == "MULR" || mnemonic_operation_code == "RMO" || mnemonic_operation_code == "SHIFTL" || mnemonic_operation_code == "SHIFTR" || mnemonic_operation_code == "SUBR" || mnemonic_operation_code == "TIXR")
 				{
-					symbolic_operands1 = removeQuotes(symbolic_operands1);
-					LOCCTR = stringAddition(LOCCTR,intToString(symbolic_operands1.length()/2));
+					if(mnemonic_operation_code == "ADDR" || mnemonic_operation_code == "COMPR" || mnemonic_operation_code == "DIVR" || mnemonic_operation_code == "MULR" || mnemonic_operation_code == "RMO" || mnemonic_operation_code == "SHIFTL" || mnemonic_operation_code == "SHIFTR" || mnemonic_operation_code == "SUBR")
+					{
+						LOCCTR = stringAddition(LOCCTR,"2");
+					}
+					else
+					{
+						LOCCTR = stringAddition(LOCCTR,"2");
+					}		
 				}
 				// ----------------------------------------
-				// symbolic_operands is like 1000
+				// is format3
 				// ----------------------------------------
-				else
-					LOCCTR = stringAddition(LOCCTR,decimalToHexString(symbolic_operands1));	
+				// ----------------------------------------
+				// check if mnemonic_operation_code is in OPTAB
+				// ----------------------------------------
+				else if(OPTAB.search(mnemonic_operation_code,opcode))
+				{
+					LOCCTR = stringAddition(LOCCTR,"3");
+				}
+				// ----------------------------------------
+				// check if mnemonic_operation_code is "WORD"
+				// ----------------------------------------
+				else if (mnemonic_operation_code == "WORD")
+				{
+					LOCCTR = stringAddition(LOCCTR,"3");
+				}
+				// ----------------------------------------
+				// check if mnemonic_operation_code is "RESW"
+				// ----------------------------------------
+				else if (mnemonic_operation_code == "RESW")
+				{
+					LOCCTR = stringAddition(LOCCTR,intToString(3 * hexStringToInteger(symbolic_operands1)));	
+				}
+				// ----------------------------------------
+				// check if mnemonic_operation_code is "RESB"
+				// ----------------------------------------
+				else if (mnemonic_operation_code == "RESB")
+				{
+					LOCCTR = stringAddition(LOCCTR,decimalToHexString(symbolic_operands1));		
+				}
+				// ----------------------------------------
+				// check if mnemonic_operation_code is "BYTE"
+				// ----------------------------------------
+				else if (mnemonic_operation_code == "BYTE")
+				{
+					// ----------------------------------------
+					// check if symbolic_operands is like C'EOF'
+					// ----------------------------------------
+					if(symbolic_operands1[0] == 'C' && symbolic_operands1[1] == '\'')
+					{
+						symbolic_operands1= removeQuotes(symbolic_operands1);
+						LOCCTR = stringAddition(LOCCTR,intToString(symbolic_operands1.length()));	
+					}
+					// ----------------------------------------
+					// check if symbolic_operands is like X'1A'
+					// ----------------------------------------
+					else if (symbolic_operands1[0] == 'X' && symbolic_operands1[1] == '\'')
+					{
+						symbolic_operands1 = removeQuotes(symbolic_operands1);
+						LOCCTR = stringAddition(LOCCTR,intToString(symbolic_operands1.length()/2));
+					}
+					// ----------------------------------------
+					// symbolic_operands is like 1000
+					// ----------------------------------------
+					else
+						LOCCTR = stringAddition(LOCCTR,decimalToHexString(symbolic_operands1));	
+				}
 			}
 		}
+		
 		
 		
 		
@@ -499,26 +545,42 @@ void pass2()
 	string data_constants;
 	string LOCCTR = "";
 	// ----------------------------------------
+	// the index of lineStr string
+	// ----------------------------------------
+	int i;
+	// ----------------------------------------
 	// get first line
 	// ----------------------------------------
-	fgets(line, sizeof(line), intermediate);
-	// ----------------------------------------
-	// Remove the newline character from the line, if present
-	// ----------------------------------------
-    line[strcspn(line, "\n")] = '\0';
-	// ----------------------------------------
-	// string : lineStr
-    // store the line in a string
-    // ----------------------------------------
-    string lineStr(line);
+	bool isComment = true;
+	string lineStr;
+	while(isComment)
+	{
+		fgets(line, sizeof(line), intermediate);
+		// ----------------------------------------
+		// Remove the newline character from the line, if present
+		// ----------------------------------------
+	    line[strcspn(line, "\n")] = '\0';
+		// ----------------------------------------
+		// string : lineStr
+	    // store the line in a string
+	    // ----------------------------------------
+	    string lineStr2(line);
+	    lineStr = lineStr2;
+		isComment = false;
+		for(i = 0 ; i < lineStr.length() ; i++)
+		{
+			if(lineStr[i] == '.')
+			{
+				isComment = true;
+				break;
+			}
+		}
+	}
     // ----------------------------------------
     // get mnemonic_operation_code
     // ----------------------------------------
 	mnemonic_operation_code = "";
-	// ----------------------------------------
-	// the index of lineStr string
-	// ----------------------------------------
-	int i;
+	
 	// ----------------------------------------
 	// get LOCCTR in first line
 	// ----------------------------------------
@@ -528,7 +590,7 @@ void pass2()
 		// ----------------------------------------
 		// stop when encounter \t
 		// ----------------------------------------
-		if(lineStr[i] == '\t')
+		if(lineStr[i] == '\t' || lineStr[i] == ' ')
 			break;
 		else
 			LOCCTR += lineStr[i];
@@ -536,16 +598,18 @@ void pass2()
 	// ----------------------------------------
 	//  skip \t
 	// ----------------------------------------
-	i++;
+	while(lineStr[i] == '\t' || lineStr[i] == ' ')
+		i++;
 	// ----------------------------------------
 	// check if exist a tab then no any lable 
 	// ----------------------------------------
-	if(lineStr[i] == '\t')
+	if(lineStr[i] == '\t' || lineStr[i] == ' ')
 	{
 		// ----------------------------------------
 		//  skip \t
 		// ----------------------------------------
-		i++;
+		while(lineStr[i] == '\t' || lineStr[i] == ' ')
+			i++;
 		// ----------------------------------------
 		// get mnemonic_operation_code in first line
 		// ----------------------------------------
@@ -555,7 +619,7 @@ void pass2()
 			// ----------------------------------------
 			// stop when encounter \t
 			// ----------------------------------------
-			if(lineStr[i] == '\t')
+			if(lineStr[i] == '\t' || lineStr[i] == ' ')
 				break;
 			else
 				mnemonic_operation_code+= lineStr[i];
@@ -572,7 +636,7 @@ void pass2()
 			// ----------------------------------------
 			// stop when encounter \t
 			// ----------------------------------------
-			if(lineStr[i] == '\t')
+			if(lineStr[i] == '\t' || lineStr[i] == ' ')
 				break;
 			else
 				lables+= lineStr[i];
@@ -580,7 +644,7 @@ void pass2()
 		// ----------------------------------------
 		//  skip \t
 		// ----------------------------------------
-		while(lineStr[i] == '\t')
+		while(lineStr[i] == '\t' || lineStr[i] == ' ')
 			i++;
 		// ----------------------------------------
 		// get mnemonic_operation_code in first line
@@ -591,7 +655,7 @@ void pass2()
 			// ----------------------------------------
 			// stop when encounter \t
 			// ----------------------------------------
-			if(lineStr[i] == '\t')
+			if(lineStr[i] == '\t' || lineStr[i] == ' ')
 				break;
 			else
 				mnemonic_operation_code+= lineStr[i];
@@ -599,7 +663,7 @@ void pass2()
 		// ----------------------------------------
 		//  skip \t
 		// ----------------------------------------
-		while(lineStr[i] == '\t')
+		while(lineStr[i] == '\t' || lineStr[i] == ' ')
 			i++;
 	}
 	// ----------------------------------------
@@ -649,6 +713,7 @@ void pass2()
 	string IsB;
 	string Program_Counter;
     string IsP;
+	bool isdeclare = false;
 	while (fgets(line, sizeof(line), intermediate) != NULL) {
         // ----------------------------------------
 		// Remove the newline character from the line, if present
@@ -660,469 +725,580 @@ void pass2()
 		// ----------------------------------------
         lineStr;
 		lineStr.assign(line);
-		// ----------------------------------------
-		// get mnemonic_operation_code
-		// ----------------------------------------
-		LOCCTR = "";
+		
+		bool isComment = false;
 		for(i = 0 ; i < lineStr.length() ; i++)
 		{
-			// ----------------------------------------
-			// stop when encounter \t
-			// ----------------------------------------
-			if(lineStr[i] == '\t')
-				break;
-			else
-				LOCCTR += lineStr[i];
-		}
-		// ----------------------------------------
-		//  skip \t
-		// ----------------------------------------
-		i++;
-		if(lineStr[i] == '\t')
-		{
-			// ----------------------------------------
-			//  skip \t
-			// ----------------------------------------
-			i++;
-			lables = "";
-			// ----------------------------------------
-			// get mnemonic_operation_code
-			// ----------------------------------------
-			mnemonic_operation_code = "";
-			for( ; i < lineStr.length() ; i++)
+			if(lineStr[i] == '.')
 			{
-				// ----------------------------------------
-				// stop when encounter \t
-				// ----------------------------------------
-				if(lineStr[i] == '\t')
-					break;
-				else
-					mnemonic_operation_code+= lineStr[i];
+				isComment = true;
+				break;
 			}
-			// ----------------------------------------
-			//  skip \t
-			// ----------------------------------------
-			i++;
+		}
+		if(isComment)
+		{
+			continue;
 		}
 		else
 		{
 			// ----------------------------------------
-			// get lables
+			// get mnemonic_operation_code
 			// ----------------------------------------
-			lables = "";
-			for( ; i < lineStr.length() ; i++)
+			LOCCTR = "";
+			for(i = 0 ; i < lineStr.length() ; i++)
 			{
 				// ----------------------------------------
 				// stop when encounter \t
 				// ----------------------------------------
-				if(lineStr[i] == '\t')
+				if(lineStr[i] == '\t' || lineStr[i] == ' ')
 					break;
 				else
-					lables+= lineStr[i];
+					LOCCTR += lineStr[i];
 			}
+			// ----------------------------------------
+			//  skip \t
+			// ----------------------------------------
 			i++;
-			// ----------------------------------------
-			// get mnemonic_operation_code
-			// ----------------------------------------
-			mnemonic_operation_code = "";
+			if(lineStr[i] == '\t' || lineStr[i] == ' ')
+			{
+				// ----------------------------------------
+				//  skip \t
+				// ----------------------------------------
+				while(lineStr[i] == '\t' || lineStr[i] == ' ')
+					i++;
+				lables = "";
+				// ----------------------------------------
+				// get mnemonic_operation_code
+				// ----------------------------------------
+				mnemonic_operation_code = "";
+				for( ; i < lineStr.length() ; i++)
+				{
+					// ----------------------------------------
+					// stop when encounter \t
+					// ----------------------------------------
+					if(lineStr[i] == '\t' || lineStr[i] == ' ')
+						break;
+					else
+						mnemonic_operation_code+= lineStr[i];
+				}
+				// ----------------------------------------
+				//  skip \t
+				// ----------------------------------------
+				while(lineStr[i] == '\t' || lineStr[i] == ' ')
+					i++;
+			}
+			else
+			{
+				// ----------------------------------------
+				// get lables
+				// ----------------------------------------
+				lables = "";
+				for( ; i < lineStr.length() ; i++)
+				{
+					// ----------------------------------------
+					// stop when encounter \t
+					// ----------------------------------------
+					if(lineStr[i] == '\t' || lineStr[i] == ' ')
+						break;
+					else
+						lables+= lineStr[i];
+				}
+				while(lineStr[i] == '\t' || lineStr[i] == ' ')
+					i++;
+				// ----------------------------------------
+				// get mnemonic_operation_code
+				// ----------------------------------------
+				mnemonic_operation_code = "";
+				for(; i < lineStr.length() ; i++)
+				{
+					// ----------------------------------------
+					// stop when encounter \t
+					// ----------------------------------------
+					if(lineStr[i] == '\t' || lineStr[i] == ' ')
+						break;
+					else
+						mnemonic_operation_code+= lineStr[i];
+				}
+				while(lineStr[i] == '\t' || lineStr[i] == ' ')
+					i++;
+			}
+			if(mnemonic_operation_code == "END")
+			{
+				break;
+			}
+			symbolic_operands1 = "";
 			for(; i < lineStr.length() ; i++)
 			{
+				if(lineStr[i] == '\t' || lineStr[i] == ' ')
+				{
+					break;	
+				}
 				// ----------------------------------------
-				// stop when encounter \t
+				// stop when encounter ','
 				// ----------------------------------------
-				if(lineStr[i] == '\t')
+				if(lineStr[i] == ',')
 					break;
 				else
-					mnemonic_operation_code+= lineStr[i];
+				symbolic_operands1 += lineStr[i];
 			}
-			i++;
-		}
-		if(mnemonic_operation_code == "END")
-		{
-			break;
-		}
-		symbolic_operands1 = "";
-		for(; i < lineStr.length() ; i++)
-		{
-			// ----------------------------------------
-			// stop when encounter ','
-			// ----------------------------------------
-			if(lineStr[i] == ',')
-				break;
-			else
-			symbolic_operands1 += lineStr[i];
-		}
-		i++;
-		symbolic_operands2 = "";
-		for(; i < lineStr.length() ; i++)
-		{
-			symbolic_operands2 += lineStr[i];
-		}
-		if(mnemonic_operation_code == "BASE")
-		{
-			SYMTAB.search(symbolic_operands1,Base);
-			continue;
-		}
-		else if (mnemonic_operation_code == "NOBASE")
-		{
-			Base = "";
-			continue;
-		}
-		// ----------------------------------------
-		// check whether is format4 or not
-		// ----------------------------------------
-		string opcode = "";
-		string operands = "";
-		string object = "";
-		if(mnemonic_operation_code[0] == '+')
-		{
-			mnemonic_operation_code = mnemonic_operation_code.substr(1);
-			if(OPTAB.search(mnemonic_operation_code,opcode))
+			while(lineStr[i] == '\t' || lineStr[i] == ' ' || lineStr[i] == ',')
+				i++;
+			symbolic_operands2 = "";
+			for(; i < lineStr.length() ; i++)
 			{
-				// ----------------------------------------
-				// check if symbolic_operands1 is not empty
-				// ----------------------------------------
-				if(symbolic_operands1 != "")
+				if(lineStr[i] == '\t' || lineStr[i] == ' ')
 				{
-					// ----------------------------------------
-					// check if address mode is Indirect
-					// ----------------------------------------
-					if(symbolic_operands1[0] == '@')
+					break;	
+				}
+				symbolic_operands2 += lineStr[i];
+			}
+			if(mnemonic_operation_code == "BASE")
+			{
+				SYMTAB.search(symbolic_operands1,Base);
+				continue;
+			}
+			else if (mnemonic_operation_code == "NOBASE")
+			{
+				Base = "";
+				continue;
+			}
+			// ----------------------------------------
+			// check whether is format4 or not
+			// ----------------------------------------
+			string opcode = "";
+			string operands = "";
+			string object = "";
+			
+			if(mnemonic_operation_code[0] == '+')
+			{
+				mnemonic_operation_code = mnemonic_operation_code.substr(1);
+				if(OPTAB.search(mnemonic_operation_code,opcode))
+				{
+					if(isdeclare == true)
 					{
-						Indirect = "1";
-						symbolic_operands1 = symbolic_operands1.substr(1);
+						// ----------------------------------------
+						// append a object code to unfinished Text Record line
+						// ----------------------------------------
+						all_object += object;
+						// ----------------------------------------
+						// append "0" to a address of first object code in one line to unfinished Text Record line
+						// ----------------------------------------
+						while(LOCCTR.length() < 6)
+							LOCCTR = "0" + LOCCTR;
+						// ----------------------------------------
+						// write "T" and address of Text Record line to object_file file
+						// ----------------------------------------
+						fprintf(object_file, ("T" + LOCCTR).c_str());
 					}
-					else
+					isdeclare = false;
+					// ----------------------------------------
+					// check if symbolic_operands1 is not empty
+					// ----------------------------------------
+					if(symbolic_operands1 != "")
 					{
-						Indirect = "0";
-					}
-					// ----------------------------------------
-					// check if address mode is Immediate
-					// ----------------------------------------
-					if (symbolic_operands1[0] == '#')
-					{
-						Immediate = "1";
-						symbolic_operands1 = symbolic_operands1.substr(1);
-					}
-					else
-					{
-						Immediate = "0";
-					}
-					// ----------------------------------------
-					// check if address mode is simple
-					// ----------------------------------------
-					if(Indirect == "0" && Immediate == "0")
-					{
-						Indirect = Immediate = "1"; 
-					}
-					// ----------------------------------------
-					// check if address mode is X
-					// ----------------------------------------
-					if (symbolic_operands2[0] == 'X')
-					{
-						IsX = "1";
-					}
-					else
-					{
-						IsX = "0";
-					}
-					// ----------------------------------------
-					// check if symbolic_operands is in SYMTAB
-					// and store address of it to operands string variable
-					// ----------------------------------------
-					if(SYMTAB.search(symbolic_operands1,operands))
-					{
-						string tmp = stringAddition(LOCCTR,"1");
-						while(tmp.length() < 6)
+						// ----------------------------------------
+						// check if address mode is Indirect
+						// ----------------------------------------
+						if(symbolic_operands1[0] == '@')
 						{
-							tmp = "0" + tmp;
+							Indirect = "1";
+							symbolic_operands1 = symbolic_operands1.substr(1);
 						}
-						all_modification = all_modification + "M" + tmp + "05\n";
+						else
+						{
+							Indirect = "0";
+						}
+						// ----------------------------------------
+						// check if address mode is Immediate
+						// ----------------------------------------
+						if (symbolic_operands1[0] == '#')
+						{
+							Immediate = "1";
+							symbolic_operands1 = symbolic_operands1.substr(1);
+						}
+						else
+						{
+							Immediate = "0";
+						}
+						// ----------------------------------------
+						// check if address mode is simple
+						// ----------------------------------------
+						if(Indirect == "0" && Immediate == "0")
+						{
+							Indirect = Immediate = "1"; 
+						}
+						// ----------------------------------------
+						// check if address mode is X
+						// ----------------------------------------
+						if (symbolic_operands2[0] == 'X')
+						{
+							IsX = "1";
+						}
+						else
+						{
+							IsX = "0";
+						}
+						// ----------------------------------------
+						// check if symbolic_operands is in SYMTAB
+						// and store address of it to operands string variable
+						// ----------------------------------------
+						if(SYMTAB.search(symbolic_operands1,operands))
+						{
+							string tmp = stringAddition(LOCCTR,"1");
+							while(tmp.length() < 6)
+							{
+								tmp = "0" + tmp;
+							}
+							all_modification = all_modification + "M" + tmp + "05\n";
+						}
+						// ----------------------------------------
+						// symbolic_operands is not in SYMTAB
+						// ----------------------------------------
+						else
+						{
+							operands = decimalToHexString(symbolic_operands1);
+						}
+						
 					}
 					// ----------------------------------------
-					// symbolic_operands is not in SYMTAB
+					// symbolic_operands1 is empty
 					// ----------------------------------------
 					else
 					{
-						operands = decimalToHexString(symbolic_operands1);
+						operands = "00000";
 					}
+					// ----------------------------------------
+					// tranlate it to object code
+					// ----------------------------------------
+					string xbpe = decimalToHexString(intToString((IsX[0] - 48) * 8 + 1)) ;
+					string opcodeni = stringAddition(opcode,(decimalToHexString(intToString(hexStringToInteger(Indirect) * 2 + hexStringToInteger(Immediate)))));
+					while (opcodeni.length() < 2)
+					{
+						opcodeni = "0" + opcodeni;
+					}
+					while (operands.length() < 5)
+					{
+						operands = "0" + operands;
+					}
+					object = opcodeni + xbpe + operands;
 					
 				}
-				// ----------------------------------------
-				// symbolic_operands1 is empty
-				// ----------------------------------------
-				else
-				{
-					operands = "00000";
-				}
-				// ----------------------------------------
-				// tranlate it to object code
-				// ----------------------------------------
-				string xbpe = decimalToHexString(intToString((IsX[0] - 48) * 8 + 1)) ;
-				string opcodeni = stringAddition(opcode,(decimalToHexString(intToString(hexStringToInteger(Indirect) * 2 + hexStringToInteger(Immediate)))));
-				while (opcodeni.length() < 2)
-				{
-					opcodeni = "0" + opcodeni;
-				}
-				while (operands.length() < 5)
-				{
-					operands = "0" + operands;
-				}
-				object = opcodeni + xbpe + operands;
+			}
+			else
+			{
 				
-			}
-		}
-		else
-		{
-			// ----------------------------------------
-			// check whether is format1 or not
-			// ----------------------------------------
-			if(mnemonic_operation_code == "FIX" || mnemonic_operation_code == "FLOAT" || mnemonic_operation_code == "HIO" || mnemonic_operation_code == "NORM" || mnemonic_operation_code == "SIO" || mnemonic_operation_code == "TIO")
-			{
-				OPTAB.search(mnemonic_operation_code,opcode);
-				object = opcode;
-			}
-			// ----------------------------------------
-			// check whether is format2 or not
-			// ----------------------------------------
-			else if(mnemonic_operation_code == "ADDR" || mnemonic_operation_code == "CLEAR" || mnemonic_operation_code == "COMPR" || mnemonic_operation_code == "DIVR" || mnemonic_operation_code == "MULR" || mnemonic_operation_code == "RMO" || mnemonic_operation_code == "SHIFTL" || mnemonic_operation_code == "SHIFTR" || mnemonic_operation_code == "SUBR" || mnemonic_operation_code == "TIXR")
-			{
-				if(mnemonic_operation_code == "ADDR" || mnemonic_operation_code == "COMPR" || mnemonic_operation_code == "DIVR" || mnemonic_operation_code == "MULR" || mnemonic_operation_code == "RMO" || mnemonic_operation_code == "SHIFTL" || mnemonic_operation_code == "SHIFTR" || mnemonic_operation_code == "SUBR")
+				// ----------------------------------------
+				// check whether is format1 or not
+				// ----------------------------------------
+				if(mnemonic_operation_code == "FIX" || mnemonic_operation_code == "FLOAT" || mnemonic_operation_code == "HIO" || mnemonic_operation_code == "NORM" || mnemonic_operation_code == "SIO" || mnemonic_operation_code == "TIO")
 				{
+					if(isdeclare == true)
+					{
+						// ----------------------------------------
+						// append a object code to unfinished Text Record line
+						// ----------------------------------------
+						all_object += object;
+						// ----------------------------------------
+						// append "0" to a address of first object code in one line to unfinished Text Record line
+						// ----------------------------------------
+						while(LOCCTR.length() < 6)
+							LOCCTR = "0" + LOCCTR;
+						// ----------------------------------------
+						// write "T" and address of Text Record line to object_file file
+						// ----------------------------------------
+						fprintf(object_file, ("T" + LOCCTR).c_str());
+					}
+					isdeclare = false;
 					OPTAB.search(mnemonic_operation_code,opcode);
-					SYMTAB.search(symbolic_operands1,operands);
-					object = opcode + operands;
-					SYMTAB.search(symbolic_operands2,operands);
-					object = object + operands;
+					object = opcode;
 				}
-				else
-				{
-					OPTAB.search(mnemonic_operation_code,opcode);
-					SYMTAB.search(symbolic_operands1,operands);
-					object = opcode + operands + "0";
-				}		
-			}
-			// ----------------------------------------
-			// check whether is format1 or not
-			// ----------------------------------------
-			else if(OPTAB.search(mnemonic_operation_code,opcode))
-			{
 				// ----------------------------------------
-				// check if symbolic_operands1 is not empty
+				// check whether is format2 or not
 				// ----------------------------------------
-				if(symbolic_operands1 != "")
+				else if(mnemonic_operation_code == "ADDR" || mnemonic_operation_code == "CLEAR" || mnemonic_operation_code == "COMPR" || mnemonic_operation_code == "DIVR" || mnemonic_operation_code == "MULR" || mnemonic_operation_code == "RMO" || mnemonic_operation_code == "SHIFTL" || mnemonic_operation_code == "SHIFTR" || mnemonic_operation_code == "SUBR" || mnemonic_operation_code == "TIXR")
 				{
-					// ----------------------------------------
-					// check if address mode is Indirect
-					// ----------------------------------------
-					if(symbolic_operands1[0] == '@')
+					if(isdeclare == true)
 					{
-						Indirect = "1";
-						symbolic_operands1 = symbolic_operands1.substr(1);
+						// ----------------------------------------
+						// append a object code to unfinished Text Record line
+						// ----------------------------------------
+						all_object += object;
+						// ----------------------------------------
+						// append "0" to a address of first object code in one line to unfinished Text Record line
+						// ----------------------------------------
+						while(LOCCTR.length() < 6)
+							LOCCTR = "0" + LOCCTR;
+						// ----------------------------------------
+						// write "T" and address of Text Record line to object_file file
+						// ----------------------------------------
+						fprintf(object_file, ("T" + LOCCTR).c_str());
+					}
+					isdeclare = false;
+					if(mnemonic_operation_code == "ADDR" || mnemonic_operation_code == "COMPR" || mnemonic_operation_code == "DIVR" || mnemonic_operation_code == "MULR" || mnemonic_operation_code == "RMO" || mnemonic_operation_code == "SHIFTL" || mnemonic_operation_code == "SHIFTR" || mnemonic_operation_code == "SUBR")
+					{
+						OPTAB.search(mnemonic_operation_code,opcode);
+						SYMTAB.search(symbolic_operands1,operands);
+						object = opcode + operands;
+						SYMTAB.search(symbolic_operands2,operands);
+						object = object + operands;
 					}
 					else
 					{
-						Indirect = "0";
-					}
-					// ----------------------------------------
-					// check if address mode is Immediate
-					// ----------------------------------------
-					if (symbolic_operands1[0] == '#')
+						OPTAB.search(mnemonic_operation_code,opcode);
+						SYMTAB.search(symbolic_operands1,operands);
+						object = opcode + operands + "0";
+					}		
+				}
+				// ----------------------------------------
+				// check whether is format1 or not
+				// ----------------------------------------
+				else if(OPTAB.search(mnemonic_operation_code,opcode))
+				{
+					if(isdeclare == true)
 					{
-						Immediate = "1";
-						symbolic_operands1 = symbolic_operands1.substr(1);
+						// ----------------------------------------
+						// append a object code to unfinished Text Record line
+						// ----------------------------------------
+						all_object += object;
+						// ----------------------------------------
+						// append "0" to a address of first object code in one line to unfinished Text Record line
+						// ----------------------------------------
+						while(LOCCTR.length() < 6)
+							LOCCTR = "0" + LOCCTR;
+						// ----------------------------------------
+						// write "T" and address of Text Record line to object_file file
+						// ----------------------------------------
+						fprintf(object_file, ("T" + LOCCTR).c_str());
 					}
-					else
+					isdeclare = false;
+					
+					// ----------------------------------------
+					// check if symbolic_operands1 is not empty
+					// ----------------------------------------
+					if(symbolic_operands1 != "")
 					{
-						Immediate = "0";
-					}
-					// ----------------------------------------
-					// check if address mode is simple
-					// ----------------------------------------
-					if(Indirect == "0" && Immediate == "0")
-					{
-						Indirect = Immediate = "1"; 
-					}
-					// ----------------------------------------
-					// check if address mode is X
-					// ----------------------------------------
-					if (symbolic_operands2[0] == 'X')
-					{
-						IsX = "1";
-					}
-					else
-					{
-						IsX = "0";
-					}
-					// ----------------------------------------
-					// check if symbolic_operands is in SYMTAB
-					// and store address of it to operands string variable
-					// ----------------------------------------
-					if(SYMTAB.search(symbolic_operands1,operands))
-					{
-						int ret = hexStringToInteger(operands) - hexStringToInteger(stringAddition(LOCCTR,"3"));
-						
-						if(ret >= -2048 && ret <= 2047)
+						// ----------------------------------------
+						// check if address mode is Indirect
+						// ----------------------------------------
+						if(symbolic_operands1[0] == '@')
 						{
-							if(ret < 0)
-							{
-								ret = 0xFFF + ret + 1; 
-							}
-							operands = decimalToHexString(intToString(ret));
-							IsP = "1";
-							IsB = "0";
+							Indirect = "1";
+							symbolic_operands1 = symbolic_operands1.substr(1);
 						}
-						else if(Base != "")
+						else
 						{
-							ret = hexStringToInteger(operands) - hexStringToInteger(Base);
-							if(ret >= 0 && ret <= 4095)
+							Indirect = "0";
+						}
+						// ----------------------------------------
+						// check if address mode is Immediate
+						// ----------------------------------------
+						if (symbolic_operands1[0] == '#')
+						{
+							Immediate = "1";
+							symbolic_operands1 = symbolic_operands1.substr(1);
+						}
+						else
+						{
+							Immediate = "0";
+						}
+						// ----------------------------------------
+						// check if address mode is simple
+						// ----------------------------------------
+						if(Indirect == "0" && Immediate == "0")
+						{
+							Indirect = Immediate = "1"; 
+						}
+						// ----------------------------------------
+						// check if address mode is X
+						// ----------------------------------------
+						if (symbolic_operands2[0] == 'X')
+						{
+							IsX = "1";
+						}
+						else
+						{
+							IsX = "0";
+						}
+						// ----------------------------------------
+						// check if symbolic_operands is in SYMTAB
+						// and store address of it to operands string variable
+						// ----------------------------------------
+						if(SYMTAB.search(symbolic_operands1,operands))
+						{
+							int ret = hexStringToInteger(operands) - hexStringToInteger(stringAddition(LOCCTR,"3"));
+							
+							if(ret >= -2048 && ret <= 2047)
 							{
 								if(ret < 0)
 								{
 									ret = 0xFFF + ret + 1; 
 								}
-								
 								operands = decimalToHexString(intToString(ret));
-								IsP = "0";
-								IsB = "1";
-							}
-							else
-							{
-								operands = "err"; // error for relative address
-								IsP = "0";
+								IsP = "1";
 								IsB = "0";
 							}
+							else if(Base != "")
+							{
+								ret = hexStringToInteger(operands) - hexStringToInteger(Base);
+								if(ret >= 0 && ret <= 4095)
+								{
+									if(ret < 0)
+									{
+										ret = 0xFFF + ret + 1; 
+									}
+									
+									operands = decimalToHexString(intToString(ret));
+									IsP = "0";
+									IsB = "1";
+								}
+								else
+								{
+									operands = "err"; // error for relative address
+									IsP = "0";
+									IsB = "0";
+								}
+							}
 						}
+						// ----------------------------------------
+						// symbolic_operands is not in SYMTAB
+						// ----------------------------------------
+						else
+						{
+							operands = decimalToHexString(symbolic_operands1);
+							while(operands.length() < 3)
+							{
+								operands = "0" + operands;
+							}
+							IsP = "0";
+							IsB = "0";
+						}
+						
 					}
 					// ----------------------------------------
-					// symbolic_operands is not in SYMTAB
+					// symbolic_operands1 is empty
 					// ----------------------------------------
 					else
 					{
-						operands = decimalToHexString(symbolic_operands1);
-						while(operands.length() < 3)
-						{
-							operands = "0" + operands;
-						}
 						IsP = "0";
 						IsB = "0";
+						operands = "000";
+					}
+					// ----------------------------------------
+					// tranlate it to object code
+					// ----------------------------------------
+					string xbpe = decimalToHexString(intToString((IsX[0] - 48) * 8 + (IsB[0] - 48) * 4 + (IsP[0] - 48) * 2));
+					string opcodeni = stringAddition(opcode,(decimalToHexString(intToString(hexStringToInteger(Indirect) * 2 + hexStringToInteger(Immediate)))));
+					while (opcodeni.length() < 2)
+					{
+						opcodeni = "0" + opcodeni;
+					}
+					object = opcodeni + xbpe + operands;
+					while (operands.length() < 3)
+					{
+						operands = "0" + operands;
+					}
+					object = opcodeni + xbpe + operands;
+				}
+				else if (mnemonic_operation_code == "BYTE" || mnemonic_operation_code == "WORD")
+				{
+					// ----------------------------------------
+					// check if symbolic_operands is like C'EOF'
+					// ----------------------------------------
+					if(symbolic_operands1[0] == 'C' && symbolic_operands1[1] == '\'')
+					{
+						symbolic_operands1= removeQuotes(symbolic_operands1);
+						for (i = 0 ; i < symbolic_operands1.length() ; i++)
+							object += decimalToHexString(intToString(symbolic_operands1[i]));
+					}
+					// ----------------------------------------
+					// check if symbolic_operands is like X'1A'
+					// ----------------------------------------
+					else if (symbolic_operands1[0] == 'X' && symbolic_operands1[1] == '\'')
+					{
+						symbolic_operands1 = removeQuotes(symbolic_operands1);
+						object = symbolic_operands1;
+					}
+					else
+					{
+						// ----------------------------------------
+						// if mnemonic_operation_code is BYTE
+						// ----------------------------------------
+						if(mnemonic_operation_code == "BYTE")
+							object = decimalToHexString(symbolic_operands1);
+						// ----------------------------------------
+						// if mnemonic_operation_code is WORD
+						// ----------------------------------------
+						else
+							object = decimalToHexString(symbolic_operands1);
+						// ----------------------------------------
+						// if length of object code is less than 6 then append "0" to object code
+						// ----------------------------------------
+						while(object.length() < 6)
+						{
+							object = "0" + object;
+						}
+						
 					}
 					
 				}
-				// ----------------------------------------
-				// symbolic_operands1 is empty
-				// ----------------------------------------
-				else
+				else if (mnemonic_operation_code == "RESW" || mnemonic_operation_code == "RESB")
 				{
-					IsP = "0";
-					IsB = "0";
-					operands = "000";
-				}
-				// ----------------------------------------
-				// tranlate it to object code
-				// ----------------------------------------
-				string xbpe = decimalToHexString(intToString((IsX[0] - 48) * 8 + (IsB[0] - 48) * 4 + (IsP[0] - 48) * 2));
-				string opcodeni = stringAddition(opcode,(decimalToHexString(intToString(hexStringToInteger(Indirect) * 2 + hexStringToInteger(Immediate)))));
-				while (opcodeni.length() < 2)
-				{
-					opcodeni = "0" + opcodeni;
-				}
-				object = opcodeni + xbpe + operands;
-				while (operands.length() < 3)
-				{
-					operands = "0" + operands;
-				}
-				object = opcodeni + xbpe + operands;
-			}
-			else if (mnemonic_operation_code == "BYTE" || mnemonic_operation_code == "WORD")
-			{
-				// ----------------------------------------
-				// check if symbolic_operands is like C'EOF'
-				// ----------------------------------------
-				if(symbolic_operands1[0] == 'C' && symbolic_operands1[1] == '\'')
-				{
-					symbolic_operands1= removeQuotes(symbolic_operands1);
-					for (i = 0 ; i < symbolic_operands1.length() ; i++)
-						object += decimalToHexString(intToString(symbolic_operands1[i]));
-				}
-				// ----------------------------------------
-				// check if symbolic_operands is like X'1A'
-				// ----------------------------------------
-				else if (symbolic_operands1[0] == 'X' && symbolic_operands1[1] == '\'')
-				{
-					symbolic_operands1 = removeQuotes(symbolic_operands1);
-					object = symbolic_operands1;
-				}
-				else
-				{
-					// ----------------------------------------
-					// if mnemonic_operation_code is BYTE
-					// ----------------------------------------
-					if(mnemonic_operation_code == "BYTE")
-						object = decimalToHexString(symbolic_operands1);
-					// ----------------------------------------
-					// if mnemonic_operation_code is WORD
-					// ----------------------------------------
-					else
-						object = decimalToHexString(symbolic_operands1);
-					// ----------------------------------------
-					// if length of object code is less than 6 then append "0" to object code
-					// ----------------------------------------
-					while(object.length() < 6)
+					if(isdeclare == false)
 					{
-						object = "0" + object;
+						isdeclare = true;
 					}
 				}
 			}
+			if(textlength == 0 && isdeclare == false)
+			{
+				// ----------------------------------------
+				// append a object code to unfinished Text Record line
+				// ----------------------------------------
+				all_object += object;
+				// ----------------------------------------
+				// append "0" to a address of first object code in one line to unfinished Text Record line
+				// ----------------------------------------
+				while(LOCCTR.length() < 6)
+					LOCCTR = "0" + LOCCTR;
+				// ----------------------------------------
+				// write "T" and address of Text Record line to object_file file
+				// ----------------------------------------
+				fprintf(object_file, ("T" + LOCCTR).c_str());
+			}
+			else
+			{
+				// ----------------------------------------
+				// append a object code to unfinished Text Record line
+				// ----------------------------------------
+				all_object += object;
+				// ----------------------------------------
+				// increase for every object code
+				// ----------------------------------------
+			}
+			textlength++;
+			// ----------------------------------------
+			// write a Text Record object code to object_file file when have nine object code
+			// ----------------------------------------
+			if(((all_object.length()/2) >= 0x1D || isdeclare == true) &&(all_object.length()/2) != 0x00)
+			{
+				// ----------------------------------------
+				// write a length of Text Record header line to object_file file
+				// ----------------------------------------
+				string all_object_length = decimalToHexString(intToString(all_object.length()/2));
+				if(all_object_length.length() == 1)
+					all_object_length = "0" + all_object_length;
+				// ----------------------------------------
+				// write length of all_object and all_object of Text Record to object_file file
+				// ----------------------------------------
+				fprintf(object_file, (all_object_length + all_object + "\n").c_str());
+				// ----------------------------------------
+				// reset length and object code
+				// ----------------------------------------
+				textlength = 0;
+				all_object = "";
+			}
 		}
-		if(textlength == 0)
-		{
-			// ----------------------------------------
-			// append a object code to unfinished Text Record line
-			// ----------------------------------------
-			all_object += object;
-			// ----------------------------------------
-			// append "0" to a address of first object code in one line to unfinished Text Record line
-			// ----------------------------------------
-			while(LOCCTR.length() < 6)
-				LOCCTR = "0" + LOCCTR;
-			// ----------------------------------------
-			// write "T" and address of Text Record line to object_file file
-			// ----------------------------------------
-			fprintf(object_file, ("T" + LOCCTR).c_str());
-		}
-		else
-		{
-			// ----------------------------------------
-			// append a object code to unfinished Text Record line
-			// ----------------------------------------
-			all_object += object;
-		}
-		// ----------------------------------------
-		// increase for every object code
-		// ----------------------------------------
-		textlength++;
-		// ----------------------------------------
-		// write a Text Record object code to object_file file when have ten object code
-		// ----------------------------------------
-		if(textlength == 10)
-		{
-			// ----------------------------------------
-			// write a length of Text Record header line to object_file file
-			// ----------------------------------------
-			string all_object_length = decimalToHexString(intToString(all_object.length()/2));
-			if(all_object_length.length() == 1)
-				all_object_length = "0" + all_object_length;
-			// ----------------------------------------
-			// write length of all_object and all_object of Text Record to object_file file
-			// ----------------------------------------
-			fprintf(object_file, (all_object_length + all_object + "\n").c_str());
-			// ----------------------------------------
-			// reset length and object code
-			// ----------------------------------------
-			textlength = 0;
-			all_object = "";
-		}
+	
     }
 	// ----------------------------------------
 	// write a last Text Record object code to object_file file when length is not equal to 0
